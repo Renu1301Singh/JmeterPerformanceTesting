@@ -11,6 +11,20 @@ The repository contains test scripts, configurations, and data files for conduct
 - Designing Load Test Plans with Increasing User Load
 - Analyzing Test Results with Different Listeners
 
+## Files
+
+1. **CredentialsView Results Tree.jmx**
+2. **credential.csv**
+3. **list.csv**
+4. **pokemonName.csv**
+5. **testingHTTP(S) Test Script Recorder.jmx**
+
+## How It Works
+
+- **CredentialsView Results Tree.jmx**: Tests credentials using View Results Tree listener with `credential.csv`.
+- **testingHTTP(S) Test Script Recorder.jmx**: Records HTTP(S) test scripts with different CSV files for each thread group:
+  - Thread Group 1: Uses `pokemonName.csv`.
+  - Thread Group 4: Uses `list.csv`.
 
 
 ## Tasks Performed  Are:
