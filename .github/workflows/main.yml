@@ -10,27 +10,26 @@ jobs:
     runs-on: ubuntu-latest
  
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
- 
-      - name: Download JMeter
-        run: |
-          wget https://downloads.apache.org//jmeter/binaries/apache-jmeter-5.4.1.tgz
-          tar -xzf apache-jmeter-5.4.1.tgz
- 
-      - name: Run JMeter tests
-        run: |
-          ./apache-jmeter-5.4.1/bin/jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx" -l results.jtl -e -o reports
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Download report
-        uses: actions/download-artifact@v2
-        with:
-          name: reports
+    - name: Download JMeter
+      run: |
+        wget https://downloads.apache.org//jmeter/binaries/apache-jmeter-5.4.1.tgz
+        tar -xzf apache-jmeter-5.4.1.tgz
 
-      - name: Upload report to Report Portal
-        run: |
-          curl -X POST \
-            ${REPORT_PORTAL_URL}/api/v1/launches/${REPORT_PORTAL_LAUNCH_ID}/artifacts \
-            -H 'Authorization: Bearer ${REPORT_PORTAL_API_KEY}' \
-            -H 'Content-Type: application/octet-stream' \
-            -T reports
+    - name: Run JMeter tests
+      run: |
+         ./apache-jmeter-5.4.1/bin/jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx" -l results.jtl -e -o reports
+
+    - name: Upload results to Report Portal
+      run: |
+        curl -X POST \
+      -H "Authorization: Bearer report_7QbUgJvxQomWUspSTzLoBTVnncIDDr6ffzlO_7-_dhAQZbBWJsghBlhDOqHSIyLB" \
+      -H "Content-Type: application/json" \
+       --data-binary "@reports" \
+      "http://nashtech-test-reportportal.eastasia.cloudapp.azure.com:8080/api/v1/import/launch" \
+      -d '{"name": "RENU", "project": "automation"}'
+
+
+
