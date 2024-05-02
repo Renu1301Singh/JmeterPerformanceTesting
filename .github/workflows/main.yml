@@ -23,7 +23,7 @@ jobs:
           ./apache-jmeter-5.4.1/bin/jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx" -l results.jtl -e -o reports
  
       - name: Upload results to Report Portal
-        uses: reportportal/reportportal/upload-action@v1
+        uses: reportportal/reportportal/upload-action@v2
         with:
           server-url: ${{ secrets.REPORT_PORTAL_URL }}
           uuid: ${{ secrets.REPORT_PORTAL_UUID }}
