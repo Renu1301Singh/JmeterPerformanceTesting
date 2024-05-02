@@ -1,0 +1,32 @@
+name: Run JMeter Tests
+ 
+on:
+  push:
+    branches:
+      - main
+ 
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+ 
+      - name: Download JMeter
+        run: |
+          wget https://downloads.apache.org//jmeter/binaries/apache-jmeter-5.4.1.tgz
+          tar -xzf apache-jmeter-5.4.1.tgz
+ 
+      - name: Run JMeter tests
+        run: |
+          ./apache-jmeter-5.4.1/bin/jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx" -l results.jtl -e -o reports
+ 
+      - name: Upload results to Report Portal
+        uses: reportportal/reportportal/upload-action@v1
+        with:
+          server-url: ${{ secrets.REPORT_PORTAL_URL }}
+          uuid: ${{ secrets.REPORT_PORTAL_UUID }}
+          launch-name: "JMeter Tests"
+          project-name: "Your Report Portal Project"
+          files: reports
