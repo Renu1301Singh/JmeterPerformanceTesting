@@ -15,7 +15,7 @@ jobs:
 
       - name: Download JMeter
         run: |
-          wget https://downloads.apache.org//jmeter/binaries/apache-jmeter-5.4.1.tgz
+          wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.4.1.tgz
           tar -xzf apache-jmeter-5.4.1.tgz
 
       - name: Run JMeter tests
