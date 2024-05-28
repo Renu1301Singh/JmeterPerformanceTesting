@@ -1,33 +1,60 @@
 name: Run JMeter Tests
- 
+
 on:
   push:
     branches:
       - main
- 
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  run_tests:
+  jmeter-tests:
     runs-on: ubuntu-latest
- 
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Download and Install JMeter
-        run: |
-          wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
-          tar -xf apache-jmeter-5.6.3.tgz
-          sudo mv apache-jmeter-5.6.3 /opt/
-          echo 'export PATH=/opt/apache-jmeter-5.6.3/bin:$PATH' >> ~/.bashrc
-          source ~/.bashrc
-      - name: Run JMeter Tests
-        run: /opt/apache-jmeter-5.6.3/bin/jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx"
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11' # or any other version required by your JMeter tests
 
-      - name: Upload results to Report Portal
-        run: |
-          curl -X POST \
-            -H "Authorization: Bearer report_7QbUgJvxQomWUspSTzLoBTVnncIDDr6ffzlO_7-_dhAQZbBWJsghBlhDOqHSIyLB" \
-            -H "Content-Type: application/json" \
-            --data-binary "@reports" \
-            "http://nashtech-test-reportportal.eastasia.cloudapp.azure.com:8080/api/v1/import/launch" \
-            -d '{"name": "RENU", "project": "automation"}'
+    - name: Download and install JMeter
+      run: |
+        wget https://downloads.apache.org//jmeter/binaries/apache-jmeter-5.5.tgz
+        tar -xvzf apache-jmeter-5.5.tgz
+        export PATH=$PATH:$GITHUB_WORKSPACE/apache-jmeter-5.5/bin
+
+    - name: Run JMeter test for CredentialsView
+      run: |
+        jmeter -n -t "CredentialsView Results Tree.jmx" -l results_credentials.jtl -e -o output_credentials
+      env:
+        CREDENTIALS_FILE: credential.csv
+        LIST_FILE: list.csv
+        POKEMON_NAME_FILE: pokemonName.csv
+
+    - name: Run JMeter test for HTTP(S) Recorder
+      run: |
+        jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx" -l results_http_recorder.jtl -e -o output_http_recorder
+      env:
+        CREDENTIALS_FILE: credential.csv
+        LIST_FILE: list.csv
+        POKEMON_NAME_FILE: pokemonName.csv
+
+    - name: Upload JMeter results for CredentialsView
+      uses: actions/upload-artifact@v3
+      with:
+        name: jmeter-results-credentialsview
+        path: |
+          results_credentials.jtl
+          output_credentials
+
+    - name: Upload JMeter results for HTTP(S) Recorder
+      uses: actions/upload-artifact@v3
+      with:
+        name: jmeter-results-https-recorder
+        path: |
+          results_http_recorder.jtl
+          output_http_recorder
