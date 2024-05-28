@@ -19,20 +19,22 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v3
       with:
-        distribution: 'adopt' 
-        java-version: '21' 
+        distribution: 'adopt'  # or 'zulu', 'temurin', etc.
+        java-version: '11'     # or any other version required by your JMeter tests
 
     - name: Download and install JMeter
       run: |
         JMETER_VERSION="5.5"
         wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-$JMETER_VERSION.tgz
         tar -xvzf apache-jmeter-$JMETER_VERSION.tgz
-        export PATH=$PATH:$GITHUB_WORKSPACE/apache-jmeter-$JMETER_VERSION/bin
+        echo "export PATH=$PATH:$GITHUB_WORKSPACE/apache-jmeter-$JMETER_VERSION/bin" >> $GITHUB_ENV
 
+    - name: Create reports directory
+      run: mkdir -p reports
 
     - name: Run JMeter test for CredentialsView
       run: |
-        jmeter -n -t "CredentialsView Results Tree.jmx" -l results_credentials.jtl -e -o output_credentials
+        jmeter -n -t "CredentialsView Results Tree.jmx" -l reports/results_credentials.jtl -e -o reports/output_credentials
       env:
         CREDENTIALS_FILE: credential.csv
         LIST_FILE: list.csv
@@ -40,24 +42,14 @@ jobs:
 
     - name: Run JMeter test for HTTP(S) Recorder
       run: |
-        jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx" -l results_http_recorder.jtl -e -o output_http_recorder
+        jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx" -l reports/results_http_recorder.jtl -e -o reports/output_http_recorder
       env:
         CREDENTIALS_FILE: credential.csv
         LIST_FILE: list.csv
         POKEMON_NAME_FILE: pokemonName.csv
 
-    - name: Upload JMeter results for CredentialsView
+    - name: Upload JMeter results
       uses: actions/upload-artifact@v3
       with:
-        name: jmeter-results-credentialsview
-        path: |
-          results_credentials.jtl
-          output_credentials
-
-    - name: Upload JMeter results for HTTP(S) Recorder
-      uses: actions/upload-artifact@v3
-      with:
-        name: jmeter-results-https-recorder
-        path: |
-          results_http_recorder.jtl
-          output_http_recorder
+        name: jmeter-results
+        path: reports
