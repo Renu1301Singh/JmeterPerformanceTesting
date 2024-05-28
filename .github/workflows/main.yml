@@ -37,16 +37,12 @@ jobs:
         jmeter -n -t "CredentialsView Results Tree.jmx" -l reports/results_credentials.jtl -e -o reports/output_credentials
       env:
         CREDENTIALS_FILE: credential.csv
-        LIST_FILE: list.csv
-        POKEMON_NAME_FILE: pokemonName.csv
+        
 
     - name: Run JMeter test for HTTP(S) Recorder
       run: |
         jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx" -l reports/results_http_recorder.jtl -e -o reports/output_http_recorder
-      env:
-        CREDENTIALS_FILE: credential.csv
-        LIST_FILE: list.csv
-        POKEMON_NAME_FILE: pokemonName.csv
+      
 
     - name: Upload JMeter results
       uses: actions/upload-artifact@v3
