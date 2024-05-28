@@ -1,4 +1,4 @@
-name: Run JMeter Tests
+name: Run JMeter Test
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  jmeter-tests:
+  jmeter-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,17 +32,11 @@ jobs:
     - name: Create reports directory
       run: mkdir -p reports
 
-    - name: Run JMeter test for CredentialsView
-      run: |
-        jmeter -n -t "CredentialsView Results Tree.jmx" -l reports/results_credentials.jtl -e -o reports/output_credentials
-      env:
-        CREDENTIALS_FILE: credential.csv
-        
-
     - name: Run JMeter test for HTTP(S) Recorder
+      shell: bash
       run: |
+        export PATH=$PATH:$GITHUB_WORKSPACE/apache-jmeter-5.5/bin
         jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx" -l reports/results_http_recorder.jtl -e -o reports/output_http_recorder
-      
 
     - name: Upload JMeter results
       uses: actions/upload-artifact@v3
