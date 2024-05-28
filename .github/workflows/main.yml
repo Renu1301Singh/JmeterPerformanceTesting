@@ -21,12 +21,21 @@ jobs:
          echo 'export PATH=/opt/apache-jmeter-5.6.3/bin:$PATH' >> ~/.bashrc
          source ~/.bashrc
 
-      - name: Run JMeter tests
+      - name: Download and Install JMeter
         run: |
-          ./apache-jmeter-5.4.1/bin/jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx" -l report/results.jtl -e -o reports
+          wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
+          tar -xf apache-jmeter-5.6.3.tgz
+          sudo mv apache-jmeter-5.6.3 /opt/
+          echo 'export PATH=/opt/apache-jmeter-5.6.3/bin:$PATH' >> ~/.bashrc
+          source ~/.bashrc
+      - name: Run JMeter Tests
+        run: /opt/apache-jmeter-5.6.3/bin/jmeter -n -t "testingHTTP(S) Test Script Recorder.jmx"
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        with:
-         name: jmeter-results
-         path: ./results/result.jtl
+      - name: Upload results to Report Portal
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer report_7QbUgJvxQomWUspSTzLoBTVnncIDDr6ffzlO_7-_dhAQZbBWJsghBlhDOqHSIyLB" \
+            -H "Content-Type: application/json" \
+            --data-binary "@reports" \
+            "http://nashtech-test-reportportal.eastasia.cloudapp.azure.com:8080/api/v1/import/launch" \
+            -d '{"name": "RENU", "project": "automation"}'
